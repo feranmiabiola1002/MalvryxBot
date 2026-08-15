@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-import os, sys, time, asyncio, random, json, threading, re, sqlite3
+import os, sys, time, asyncio, json, threading, sqlite3
 from pyrogram import Client, filters
 from flask import Flask, render_template_string, request, jsonify
-from bs4 import BeautifulSoup
 from datetime import datetime
 import requests
 from flask_cors import CORS
@@ -10,6 +9,7 @@ from flask_cors import CORS
 # ========== FIX: Python 3.14 event loop ==========
 import asyncio
 try:
+    # Python 3.14 needs this
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 except:
     pass
@@ -315,18 +315,15 @@ def log(msg):
         logs.pop(0)
     print(f"[{timestamp}] {msg}")
 
-# ========== FIX: Proper asyncio run ==========
+# ========== FIX: Proper startup for Python 3.14 ==========
 def run_bot():
-    """Run the bot with proper event loop handling"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     try:
-        app.run()
-    except RuntimeError as e:
-        if "event loop" in str(e):
-            # Fallback: use asyncio directly
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(app.start())
-            loop.run_forever()
+        loop.run_until_complete(app.start())
+        loop.run_forever()
+    except KeyboardInterrupt:
+        pass
 
 def run_flask():
     flask_app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False)
@@ -334,10 +331,10 @@ def run_flask():
 if __name__ == "__main__":
     log("🚀 MALVRYX STARTING...")
     
-    # Start Flask in thread
+    # Start Flask
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.daemon = True
     flask_thread.start()
     
-    # Run bot with fix
+    # Run bot with Python 3.14 fix
     run_bot()
