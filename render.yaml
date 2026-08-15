@@ -2,8 +2,15 @@ services:
   - type: web
     name: malvryx-bot
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
+    buildCommand: |
+      curl -fsSL https://pyenv.run | bash
+      export PYENV_ROOT="$HOME/.pyenv"
+      export PATH="$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init -)"
+      pyenv install 3.11.9
+      pyenv global 3.11.9
+      pip install -r requirements.txt
+    startCommand: python3.11 bot.py
     envVars:
       - key: API_ID
         sync: false
