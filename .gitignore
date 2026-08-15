@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Bot Data
+session*
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.mp4
+*.csv
+*.zip
+temp_media/
+keylog_*.txt
+
+# Secrets
+.env
+*.env
+config.py
+credentials.py
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Flask
+instance/
+.webassets-cache
+
+# Render
+render.yaml
