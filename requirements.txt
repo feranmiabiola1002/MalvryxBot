@@ -1,7 +1,7 @@
 pyrogram
 tgcrypto
 flask
+flask-cors
 beautifulsoup4
 requests
-flask-cors
 asyncio
