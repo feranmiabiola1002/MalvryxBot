@@ -7,11 +7,17 @@ from datetime import datetime
 import requests
 from flask_cors import CORS
 
+# ========== FIX: Python 3.14 event loop ==========
+import asyncio
+try:
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+except:
+    pass
+
 # ========== RENDER ENVIRONMENT VARIABLES ==========
 API_ID = int(os.environ.get("API_ID", 0))
 API_HASH = os.environ.get("API_HASH", "")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 LOG_CHANNEL = os.environ.get("LOG_CHANNEL", "")
 ADMIN_USER_IDS = [int(x) for x in os.environ.get("ADMIN_USER_IDS", "0").split(",")]
 PORT = int(os.environ.get("PORT", 5000))
@@ -309,10 +315,29 @@ def log(msg):
         logs.pop(0)
     print(f"[{timestamp}] {msg}")
 
+# ========== FIX: Proper asyncio run ==========
+def run_bot():
+    """Run the bot with proper event loop handling"""
+    try:
+        app.run()
+    except RuntimeError as e:
+        if "event loop" in str(e):
+            # Fallback: use asyncio directly
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(app.start())
+            loop.run_forever()
+
 def run_flask():
     flask_app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False)
 
 if __name__ == "__main__":
     log("🚀 MALVRYX STARTING...")
-    threading.Thread(target=run_flask).start()
-    app.run()
+    
+    # Start Flask in thread
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.daemon = True
+    flask_thread.start()
+    
+    # Run bot with fix
+    run_bot()
